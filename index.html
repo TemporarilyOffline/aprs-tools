@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>APRS Coordinate Converter</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.45;
+    }
+    input, button {
+      font: inherit;
+      padding: 10px 12px;
+      margin: 6px 0;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      cursor: pointer;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .muted {
+      color: #666;
+      font-size: 0.95rem;
+    }
+    .error {
+      color: #b00020;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>APRS Coordinate Converter</h1>
+  <p>
+    Enter an address, get APRS-style coordinates like
+    <code>lat=32^06.7N long=110^48.9W</code>
+  </p>
+
+  <label for="address">Address or place</label>
+  <input id="address" type="text" placeholder="123 Main St, Tucson, AZ" />
+
+  <button id="convertBtn">Convert</button>
+
+  <div id="result" class="card" hidden></div>
+
+  <p class="muted">
+    Uses OpenStreetMap Nominatim for geocoding. Please use lightly.
+  </p>
+  <p class="muted">
+    © OpenStreetMap contributors
+  </p>
+
+  <script>
+    function toAprsCoord(value, isLat) {
+      const abs = Math.abs(Number(value));
+      const degrees = Math.floor(abs);
+      const minutes = (abs - degrees) * 60;
+
+      const hemi = isLat
+        ? (value >= 0 ? "N" : "S")
+        : (value >= 0 ? "E" : "W");
+
+      const degWidth = isLat ? 2 : 3;
+      const degStr = String(degrees).padStart(degWidth, "0");
+
+      // APRS style here: MM.m
+      const minStr = minutes.toFixed(1).padStart(4, "0");
+      return `${degStr}^${minStr}${hemi}`;
+    }
+
+    async function geocodeAddress(address) {
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", address);
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("limit", "1");
+
+      const res = await fetch(url.toString(), {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error("No results found.");
+      }
+
+      return data[0];
+    }
+
+    document.getElementById("convertBtn").addEventListener("click", async () => {
+      const address = document.getElementById("address").value.trim();
+      const result = document.getElementById("result");
+
+      result.hidden = false;
+      result.innerHTML = "Looking it up...";
+
+      if (!address) {
+        result.innerHTML = '<div class="error">Please enter an address.</div>';
+        return;
+      }
+
+      try {
+        const place = await geocodeAddress(address);
+        const lat = Number(place.lat);
+        const lon = Number(place.lon);
+
+        const aprsLat = toAprsCoord(lat, true);
+        const aprsLon = toAprsCoord(lon, false);
+
+        result.innerHTML = `
+          <div><strong>Matched place:</strong> ${place.display_name}</div>
+          <div><strong>Decimal:</strong> ${lat}, ${lon}</div>
+          <div><strong>APRS:</strong> <code>lat=${aprsLat} long=${aprsLon}</code></div>
+        `;
+      } catch (err) {
+        result.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
