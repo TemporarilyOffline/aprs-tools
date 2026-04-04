@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>APRS Coordinate Converter</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 760px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.45;
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+    }
+
+    form {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    input, button {
+      font: inherit;
+      padding: 10px 12px;
+      margin: 6px 0;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 6px;
+      word-break: break-word;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .error {
+      color: #b00020;
+      font-weight: 600;
+    }
+
+    .success {
+      color: #1b5e20;
+      font-weight: 600;
+    }
+
+    .warning {
+      color: #8a5a00;
+      font-weight: 600;
+    }
+
+    .result-row {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>APRS Coordinate Converter</h1>
+  <p>
+    Enter an address and get APRS-style coordinates like
+    <code>lat=32^06.7N long=110^48.9W</code>
+  </p>
+
+  <form id="converterForm">
+    <label for="address">Address or place</label>
+    <input id="address" type="text" placeholder="123 Main St, Tucson, AZ" autocomplete="street-address" />
+
+    <div class="button-row">
+      <button type="submit" id="convertBtn">Convert</button>
+      <button type="button" id="fuzzBtn">Fuzz</button>
+    </div>
+  </form>
+
+  <div id="result" class="card" hidden></div>
+
+  <p class="muted">
+    Uses OpenStreetMap Nominatim for geocoding. Please use lightly.
+  </p>
+  <p class="muted">
+    © OpenStreetMap contributors
+  </p>
+
+  <script>
+    const form = document.getElementById("converterForm");
+    const addressInput = document.getElementById("address");
+    const result = document.getElementById("result");
+    const fuzzBtn = document.getElementById("fuzzBtn");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function (char) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        };
+        return map[char];
+      });
+    }
+
+    function formatAprs(value, isLat, options = {}) {
+      const abs = Math.abs(Number(value));
+      let degrees = Math.floor(abs);
+      let minutes = (abs - degrees) * 60;
+
+      if (options.fuzz) {
+        // Round UP to the next full minute for light obfuscation.
+        minutes = Math.ceil(minutes);
+
+        // Handle rollover, e.g. 59.2 -> 60.0
+        if (minutes >= 60) {
+          degrees += 1;
+          minutes = 0;
+        }
+      } else {
+        minutes = Math.round(minutes * 10) / 10;
+
+        // Handle rounding rollover, e.g. 59.96 -> 60.0
+        if (minutes >= 60) {
+          degrees += 1;
+          minutes = 0;
+        }
+      }
+
+      const hemi = isLat
+        ? (value >= 0 ? "N" : "S")
+        : (value >= 0 ? "E" : "W");
+
+      const degWidth = isLat ? 2 : 3;
+      const degStr = String(degrees).padStart(degWidth, "0");
+      const minStr = minutes.toFixed(1).padStart(4, "0");
+
+      return `${degStr}^${minStr}${hemi}`;
+    }
+
+    async function geocodeAddress(address) {
+      const url = new URL("https://nominatim.openstreetmap.org/search");
+      url.searchParams.set("q", address);
+      url.searchParams.set("format", "jsonv2");
+      url.searchParams.set("limit", "1");
+
+      const res = await fetch(url.toString(), {
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error("No results found.");
+      }
+
+      return data[0];
+    }
+
+    function buildFallbackQueries(address) {
+      const parts = address
+        .split(",")
+        .map(part => part.trim())
+        .filter(Boolean);
+
+      const queries = [];
+
+      // Full address first.
+      queries.push({
+        query: address,
+        partial: false,
+        note: ""
+      });
+
+      // Then progressively less-specific suffixes:
+      // "123 Main St, Tucson, AZ" ->
+      // "Tucson, AZ" ->
+      // "AZ"
+      if (parts.length > 1) {
+        for (let i = 1; i < parts.length; i++) {
+          const fallback = parts.slice(i).join(", ");
+          if (fallback && fallback !== address) {
+            queries.push({
+              query: fallback,
+              partial: true,
+              note: `Partial Match: used "${fallback}" because the full address did not resolve.`
+            });
+          }
+        }
+      }
+
+      return queries;
+    }
+
+    async function resolveAddress(address) {
+      const attempts = buildFallbackQueries(address);
+      let lastError = null;
+
+      for (const attempt of attempts) {
+        try {
+          const place = await geocodeAddress(attempt.query);
+          return {
+            place,
+            partial: attempt.partial,
+            partialQuery: attempt.query,
+            note: attempt.note
+          };
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
+      throw lastError || new Error("No results found.");
+    }
+
+    function renderResult(resolution, fuzzed) {
+      const place = resolution.place;
+      const lat = Number(place.lat);
+      const lon = Number(place.lon);
+
+      const aprsLat = formatAprs(lat, true, { fuzz: fuzzed });
+      const aprsLon = formatAprs(lon, false, { fuzz: fuzzed });
+
+      const statusLine = resolution.partial
+        ? `<div class="warning">Partial Match</div>`
+        : `<div class="success">Matched</div>`;
+
+      const noteLine = resolution.partial
+        ? `<div class="result-row muted">${escapeHtml(resolution.note)}</div>`
+        : "";
+
+      const fuzzLine = fuzzed
+        ? `<div class="result-row muted">Fuzz applied: rounded coordinates up to the next full minute for light obfuscation.</div>`
+        : "";
+
+      result.hidden = false;
+      result.innerHTML = `
+        ${statusLine}
+        ${noteLine}
+        ${fuzzLine}
+        <div class="result-row"><strong>Matched place:</strong> ${escapeHtml(place.display_name)}</div>
+        <div class="result-row"><strong>Decimal:</strong> ${lat}, ${lon}</div>
+        <div class="result-row"><strong>APRS:</strong> <code>lat=${aprsLat} long=${aprsLon}</code></div>
+      `;
+    }
+
+    async function runLookup({ fuzz = false } = {}) {
+      const address = addressInput.value.trim();
+
+      result.hidden = false;
+      result.innerHTML = "Looking it up...";
+
+      if (!address) {
+        result.innerHTML = '<div class="error">Please enter an address.</div>';
+        return;
+      }
+
+      try {
+        const resolution = await resolveAddress(address);
+        renderResult(resolution, fuzz);
+      } catch (err) {
+        result.innerHTML = `<div class="error">Error: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    // Fix #1: pressing Enter submits the form
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await runLookup({ fuzz: false });
+    });
+
+    // Fix #3: dedicated fuzz button
+    fuzzBtn.addEventListener("click", async () => {
+      await runLookup({ fuzz: true });
+    });
+  </script>
+</body>
+</html>
