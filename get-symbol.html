@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>APRS Symbol Table</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/OK-DMR/aprs-symbols@master/aprs-symbols.css">
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121821;
+      --panel-2: #1a2330;
+      --text: #e8eef7;
+      --muted: #a7b3c2;
+      --line: #263244;
+      --accent: #59d18c;
+      --chip: #0f1520;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    a { color: var(--accent); }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.05; }
+    .sub { margin: 0; color: var(--muted); max-width: 72ch; }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr .8fr auto;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .control {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--text);
+      width: 100%;
+      min-height: 48px;
+    }
+
+    .count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 6px 0 18px;
+    }
+
+    .chip {
+      background: var(--chip);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .iconBox {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .iconBox i {
+      display: inline-block;
+      transform: scale(1.05);
+    }
+
+    .meta {
+      min-width: 0;
+    }
+
+    .name {
+      font-weight: 700;
+      font-size: 15px;
+      margin: 0 0 6px;
+      color: var(--text);
+    }
+
+    .codes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    code {
+      background: #0d131d;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px 6px;
+      color: #d7e1ef;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 2.7em;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .error, .loading {
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    @media (max-width: 860px) {
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .count { grid-column: span 2; }
+    }
+
+    @media (max-width: 560px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .count { grid-column: auto; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>APRS Symbol Table</h1>
+      <p class="sub">Drop this file into a web host and it will render a searchable APRS symbol catalog with actual APRS icons. It uses the aprs.fi high-resolution symbol set and the aprs.fi machine-readable symbol index.</p>
+    </section>
+
+    <div class="toolbar">
+      <input id="search" class="control" type="search" placeholder="Search by name, description, or code like /-, \>, /R" />
+      <select id="tableFilter" class="control">
+        <option value="all">All tables</option>
+        <option value="/">Primary only (/)</option>
+        <option value="\\">Alternate only (\)</option>
+      </select>
+      <select id="sizeFilter" class="control">
+        <option value="24">24px icons</option>
+        <option value="48" selected>48px icons</option>
+        <option value="64">64px icons</option>
+        <option value="128">128px icons</option>
+      </select>
+      <div class="count" id="count">Loading…</div>
+    </div>
+
+    <div class="legend">
+      <span class="chip">Uses live icon sprites</span>
+      <span class="chip">Searchable</span>
+      <span class="chip">Primary + alternate tables</span>
+      <span class="chip">Easy to embed</span>
+    </div>
+
+    <div id="app" class="loading">Loading symbol index…</div>
+
+    <p class="footer">
+      Sources: APRS symbol definitions and symbol-table conventions from aprs.org, plus the aprs.fi machine-readable index and high-resolution icon set. The aprs.fi symbol graphics are published for free use by APRS applications, and the companion symbol index is published under CC BY-SA 4.0. See the source links in this file before redistributing. 
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/gh/OK-DMR/aprs-symbols@master/aprs-symbols.js"></script>
+  <script>
+    const INDEX_URL = 'https://cdn.jsdelivr.net/gh/hessu/aprs-symbol-index@master/generated/symbols.json';
+
+    const app = document.getElementById('app');
+    const searchEl = document.getElementById('search');
+    const tableFilterEl = document.getElementById('tableFilter');
+    const sizeFilterEl = document.getElementById('sizeFilter');
+    const countEl = document.getElementById('count');
+
+    let symbols = [];
+
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function toRecord(row) {
+      const rawTable = row.table || row.symbol_table || row.tableident || row.table_identifier || '/';
+      const symbol = row.symbol || row.code || row.symbol_code || row.overlayable_symbol || '';
+      const description = row.description || row.desc || row.name || '';
+      const destination = row.destination || row.dst || '';
+      const fullCode = `${rawTable}${symbol}`;
+
+      return {
+        table: rawTable,
+        symbol,
+        code: fullCode,
+        description,
+        destination,
+        searchBlob: [fullCode, rawTable, symbol, description, destination].join(' ').toLowerCase()
+      };
+    }
+
+    function getIconMarkup(code, size) {
+      try {
+        if (typeof getAPRSSymbolImageTag === 'function') {
+          return getAPRSSymbolImageTag(code, size);
+        }
+      } catch (e) {}
+      return `<span style="font:12px monospace;color:#a7b3c2">${escapeHtml(code)}</span>`;
+    }
+
+    function render() {
+      const query = searchEl.value.trim().toLowerCase();
+      const tableFilter = tableFilterEl.value;
+      const size = Number(sizeFilterEl.value || 48);
+
+      const filtered = symbols.filter(item => {
+        const tableOk = tableFilter === 'all' ? true : item.table === tableFilter;
+        const queryOk = !query || item.searchBlob.includes(query);
+        return tableOk && queryOk;
+      });
+
+      countEl.textContent = `${filtered.length} symbol${filtered.length === 1 ? '' : 's'}`;
+
+      if (!filtered.length) {
+        app.className = 'error';
+        app.innerHTML = 'No symbols matched that filter. Tiny radio tumbleweed.';
+        return;
+      }
+
+      app.className = 'grid';
+      app.innerHTML = filtered.map(item => `
+        <article class="card">
+          <div class="iconBox">${getIconMarkup(item.code, size)}</div>
+          <div class="meta">
+            <div class="name">${escapeHtml(item.description || 'Unnamed symbol')}</div>
+            <div class="codes">
+              <code>${escapeHtml(item.code)}</code>
+              <code>${escapeHtml(item.table === '/' ? 'Primary' : 'Alternate')}</code>
+            </div>
+            <div class="desc">${escapeHtml(item.destination || item.description || '')}</div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    async function init() {
+      try {
+        const res = await fetch(INDEX_URL, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const raw = Array.isArray(data)
+          ? data
+          : Array.isArray(data.symbols)
+            ? data.symbols
+            : Array.isArray(data.rows)
+              ? data.rows
+              : [];
+
+        symbols = raw
+          .map(toRecord)
+          .filter(x => x.table && x.symbol)
+          .sort((a, b) => a.code.localeCompare(b.code));
+
+        render();
+      } catch (err) {
+        console.error(err);
+        app.className = 'error';
+        app.innerHTML = `Could not load the remote APRS symbol index. Check your network connection or swap <code>INDEX_URL</code> for a local JSON file.`;
+        countEl.textContent = 'Load failed';
+      }
+    }
+
+    [searchEl, tableFilterEl, sizeFilterEl].forEach(el => el.addEventListener('input', render));
+    init();
+  </script>
+</body>
+</html>
