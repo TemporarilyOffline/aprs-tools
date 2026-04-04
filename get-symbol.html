@@ -4,8 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>APRS Symbol Table</title>
+
+  <!-- Prefer npm CDN package paths instead of GitHub-branch jsDelivr URLs -->
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/OK-DMR/aprs-symbols@master/aprs-symbols.css">
+  <link id="aprs-css" rel="stylesheet" href="https://unpkg.com/aprs-symbols/aprs-symbols.css">
+
   <style>
     :root {
       --bg: #0b0f14;
@@ -24,11 +28,9 @@
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
     a { color: var(--accent); }
 
-    .wrap {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .logo { text-align:center; margin-bottom: 18px; }
+    .logo img { max-height: 80px; max-width: 100%; }
 
     .hero {
       background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
@@ -49,7 +51,8 @@
       margin: 20px 0;
     }
 
-    .control {
+    .control,
+    button.control {
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -72,13 +75,7 @@
       white-space: nowrap;
     }
 
-    .legend {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 6px 0 18px;
-    }
-
+    .legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 18px; }
     .chip {
       background: var(--chip);
       border: 1px solid var(--line);
@@ -114,30 +111,20 @@
       border-radius: 14px;
       background: var(--panel-2);
       border: 1px solid var(--line);
+      overflow: hidden;
     }
 
-    .iconBox i {
+    .iconBox img,
+    .iconBox i,
+    .iconBox span {
       display: inline-block;
-      transform: scale(1.05);
+      max-width: 100%;
+      max-height: 100%;
     }
 
-    .meta {
-      min-width: 0;
-    }
-
-    .name {
-      font-weight: 700;
-      font-size: 15px;
-      margin: 0 0 6px;
-      color: var(--text);
-    }
-
-    .codes {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
+    .meta { min-width: 0; }
+    .name { font-weight: 700; font-size: 15px; margin: 0 0 6px; color: var(--text); }
+    .codes { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 
     code {
       background: #0d131d;
@@ -149,18 +136,8 @@
       font-size: 12px;
     }
 
-    .desc {
-      color: var(--muted);
-      font-size: 13px;
-      min-height: 2.7em;
-    }
-
-    .footer {
-      margin-top: 24px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
+    .desc { color: var(--muted); font-size: 13px; min-height: 2.7em; }
+    .footer { margin-top: 24px; color: var(--muted); font-size: 12px; }
     .error, .loading {
       padding: 16px;
       border-radius: 16px;
@@ -183,14 +160,17 @@
 </head>
 <body>
   <div class="wrap">
-    <center><img src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515"></center>
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
+    </div>
+
     <section class="hero">
       <h1>APRS Symbol Table</h1>
-      <p class="sub">We use the aprs.fi high-resolution symbol set and the aprs.fi machine-readable symbol index.</p>
+      <p class="sub">Search APRS symbols by code or description.</p>
     </section>
 
     <div class="toolbar">
-      <input id="search" class="control" type="search" placeholder="Search by name, description, or code like /-, \>, /R" />
+      <input id="search" class="control" type="search" placeholder="Search by name, description, or code like /-, \&gt;, /R" />
       <select id="tableFilter" class="control">
         <option value="all">All tables</option>
         <option value="/">Primary only (/)</option>
@@ -206,28 +186,36 @@
     </div>
 
     <div class="legend">
-      <span class="chip">Uses live icon sprites</span>
       <span class="chip">Searchable</span>
       <span class="chip">Primary + alternate tables</span>
-      <span class="chip">Easy to embed</span>
+      <span class="chip">Raw GitHub JSON fallback</span>
+      <span class="chip">CDN fallback for icons</span>
     </div>
 
     <div id="app" class="loading">Loading symbol index…</div>
 
     <p class="footer">
-      Sources: APRS symbol definitions and symbol-table conventions from aprs.org, plus the aprs.fi machine-readable index and high-resolution icon set. The aprs.fi symbol graphics are published for free use by APRS applications, and the companion symbol index is published under CC BY-SA 4.0. See the source links in this file before redistributing. 
+      Sources: APRS symbol definitions and symbol-table conventions from aprs.org, plus the aprs.fi machine-readable symbol index and high-resolution icon set.
     </p>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/gh/OK-DMR/aprs-symbols@master/aprs-symbols.js"></script>
   <script>
-    const INDEX_URL = 'https://cdn.jsdelivr.net/gh/hessu/aprs-symbol-index@master/generated/symbols.json';
+    const INDEX_URLS = [
+      'https://raw.githubusercontent.com/hessu/aprs-symbol-index/master/generated/symbols.json',
+      'https://cdn.jsdelivr.net/gh/hessu/aprs-symbol-index@master/generated/symbols.json'
+    ];
+
+    const APRS_JS_URLS = [
+      'https://unpkg.com/aprs-symbols/aprs-symbols.js',
+      'https://cdn.jsdelivr.net/npm/aprs-symbols/aprs-symbols.js'
+    ];
 
     const app = document.getElementById('app');
     const searchEl = document.getElementById('search');
     const tableFilterEl = document.getElementById('tableFilter');
     const sizeFilterEl = document.getElementById('sizeFilter');
     const countEl = document.getElementById('count');
+    const cssEl = document.getElementById('aprs-css');
 
     let symbols = [];
 
@@ -244,7 +232,7 @@
       const rawTable = row.table || row.symbol_table || row.tableident || row.table_identifier || '/';
       const symbol = row.symbol || row.code || row.symbol_code || row.overlayable_symbol || '';
       const description = row.description || row.desc || row.name || '';
-      const destination = row.destination || row.dst || '';
+      const destination = row.destination || row.dst || row.notes || '';
       const fullCode = `${rawTable}${symbol}`;
 
       return {
@@ -255,6 +243,36 @@
         destination,
         searchBlob: [fullCode, rawTable, symbol, description, destination].join(' ').toLowerCase()
       };
+    }
+
+    async function loadScript(urls) {
+      for (const url of urls) {
+        try {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = url;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+          return url;
+        } catch (err) {}
+      }
+      return null;
+    }
+
+    async function loadJson(urls) {
+      let lastError = null;
+      for (const url of urls) {
+        try {
+          const res = await fetch(url, { cache: 'no-cache' });
+          if (!res.ok) throw new Error(`HTTP ${res.status} from ${url}`);
+          return await res.json();
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error('All JSON sources failed');
     }
 
     function getIconMarkup(code, size) {
@@ -303,9 +321,13 @@
 
     async function init() {
       try {
-        const res = await fetch(INDEX_URL, { cache: 'no-cache' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        // If unpkg CSS fails, fall back to jsDelivr npm path.
+        cssEl.addEventListener('error', () => {
+          cssEl.href = 'https://cdn.jsdelivr.net/npm/aprs-symbols/aprs-symbols.css';
+        }, { once: true });
+
+        await loadScript(APRS_JS_URLS);
+        const data = await loadJson(INDEX_URLS);
 
         const raw = Array.isArray(data)
           ? data
@@ -324,7 +346,7 @@
       } catch (err) {
         console.error(err);
         app.className = 'error';
-        app.innerHTML = `Could not load the remote APRS symbol index. Check your network connection or swap <code>INDEX_URL</code> for a local JSON file.`;
+        app.innerHTML = `Could not load the APRS symbol index from any fallback source. This usually means the browser or network blocked both raw.githubusercontent.com and the CDN. If you want, you can bundle the JSON locally and change <code>INDEX_URLS</code> to a local file.`;
         countEl.textContent = 'Load failed';
       }
     }
