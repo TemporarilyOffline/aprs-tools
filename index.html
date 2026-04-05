@@ -1,43 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>TO's APRS Tools</title>
-    <meta name="description" content="Tools You Need For Setting Up Your APRS Station"/>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <title>TO's APRS Tools</title>
+  <meta name="description" content="Tools You Need For Setting Up Your APRS Station"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --icon-size: 48px;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+body { padding: 24px; }
+.wrap { max-width: 1320px; margin: 0 auto; }
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+.sub { margin:0; color:var(--muted); max-width: 74ch; }
+.controls {
+  display:grid; grid-template-columns: 1.4fr .7fr .7fr auto;
+  gap:12px; margin:20px 0 14px;
+}
+.control, .count {
+  min-height:48px; width:100%;
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:14px; padding:12px 14px;
+}
+.count { display:flex; align-items:center; justify-content:center; color:var(--muted); white-space:nowrap; min-width:130px; }
+.legend { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 18px; }
+.chip {
+  background:#0f1520; border:1px solid var(--line); color:var(--muted);
+  border-radius:999px; padding:6px 10px; font-size:12px;
+}
+.grid {
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap:14px;
+}
+.card {
+  display:grid; grid-template-columns: calc(var(--icon-size) + 18px) 1fr;
+  gap:12px; align-items:start;
+  background:var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+  padding:14px; box-shadow: var(--shadow);
+}
+.iconBox {
+  width: calc(var(--icon-size) + 18px);
+  height: calc(var(--icon-size) + 18px);
+  display:grid; place-items:center;
+  border-radius:14px; background:var(--panel2); border:1px solid var(--line);
+}
+.icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-repeat: no-repeat;
+  image-rendering: auto;
+  flex: 0 0 auto;
+}
+.name { margin:0 0 6px; font-size:15px; font-weight:700; }
+.codes { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+code {
+  background:#0d131d; border:1px solid var(--line); border-radius:8px;
+  padding:2px 6px; color:#d7e1ef; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;
+}
+.desc { color:var(--muted); font-size:13px; min-height:2.7em; }
+.error {
+  background: var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; color:var(--muted);
+}
+.footer { margin-top:22px; color:var(--muted); font-size:12px; }
+a { color: var(--accent); }
+@media (max-width: 860px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .count { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  body { padding: 16px; }
+  .controls { grid-template-columns: 1fr; }
+  .count { grid-column:auto; }
+  .grid { grid-template-columns: 1fr; }
+}
 
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        font-size: 14px;
-        background-color: #cfcbcb;
-      }
-      label {
-        width: 100%;
-        font-weight: bold;
-      }
-      .container {
-        margin: 0 auto;
-        width: 400px;
-        padding: 10px;
-        border: 1px solid #020202;
-        background-color: #ffffffdc;
-      }
-      .passcode {
-        font-size: 16px;
-      }
-    </style>
-
-  </head>
-  <body>
-
-    <center><img src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515"></center>
-    <div id="app" class="container">
-      <h2>APRS Tools</h2>
-      <p>Click <a href="get-coords.html">Here</a> For Properly Formatted Lat/Long for Direwolf's PBEACON</p>
-      <p>Click <a href="get-passcode.html">Here</a> For Your APRS Passcode</p>
-      <p>Click <a href="get-symbol.html">Here</a> For a Handy APRS Symbol Tool</p>
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+.tools {
+  margin-top:20px;
+  display:grid;
+  gap:14px;
+}
+.tool-link {
+  display:block;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  padding:16px 18px;
+  box-shadow: var(--shadow);
+  text-decoration:none;
+  color:var(--text);
+}
+.tool-link:hover {
+  background:var(--panel2);
+}
+.tool-link strong {
+  display:block;
+  font-size:16px;
+  margin-bottom:4px;
+}
+.tool-link span {
+  color:var(--muted);
+  font-size:13px;
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
     </div>
 
-  </body>
+    <section class="hero">
+      <h1>APRS Tools</h1>
+      <p class="sub">Tools you need for setting up your APRS station.</p>
+    </section>
+
+    <div id="app" class="tools">
+      <a class="tool-link" href="get-coords.html">
+        <strong>Get Coordinates</strong>
+        <span>Generate properly formatted latitude and longitude values for Dire Wolf PBEACON.</span>
+      </a>
+
+      <a class="tool-link" href="get-passcode.html">
+        <strong>Get Passcode</strong>
+        <span>Look up your APRS passcode for your callsign.</span>
+      </a>
+
+      <a class="tool-link" href="get-symbol.html">
+        <strong>Get Symbol</strong>
+        <span>Browse the APRS symbol tool and find the icon you want.</span>
+      </a>
+    </div>
+  </div>
+</body>
 </html>
