@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dire Wolf Config | TO's APRS Tools</title>
+  <meta name="description" content="Copy-ready Dire Wolf configuration for an APRS user station."/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin:0; padding:0;
+  background:var(--bg); color:var(--text);
+  font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body { padding:24px; }
+.wrap { max-width: 1320px; margin:0 auto; }
+
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+.sub { margin:0; color:var(--muted); max-width: 78ch; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.toolbar {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.label {
+  font-size:13px;
+  color:var(--muted);
+}
+
+button {
+  appearance:none;
+  border:none;
+  cursor:pointer;
+  background:var(--accent);
+  color:#08110c;
+  font-weight:700;
+  border-radius:12px;
+  padding:12px 16px;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+textarea {
+  width:100%;
+  min-height: 720px;
+  resize: vertical;
+  background:#0d131d;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+  font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+}
+
+.note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  body { padding:16px; }
+  textarea { min-height: 560px; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
+    </div>
+
+    <section class="hero">
+      <h1>Dire Wolf Config</h1>
+      <p class="sub">Copy-ready <code>direwolf.conf</code> sample for a fixed APRS user station with AGW, KISS, logging, and iGate settings.</p>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div class="label">Clipboard-friendly config block</div>
+        <button id="copyBtn" type="button">Copy to Clipboard</button>
+      </div>
+
+      <textarea id="confBox" spellcheck="false">#############################################################
+# Dire Wolf - APRS User Station (Fixed Position / PBEACON)
+#############################################################
+
+MYCALL TOADS-1
+ADEVICE plughw:CARD=Device,DEV=0
+PTT CM108
+MODEM 1200
+AGWPORT 8000
+KISSPORT 8001
+LOGDIR /var/log/direwolf
+
+#############################################################
+# IGATE - expand the frequency
+#############################################################
+
+# Visit http://aprs-tools.temporarilyoffline.com
+IGSERVER noam.aprs2.net
+IGLOGIN TOADS-1 13801
+IGTXVIA 0 WIDE1-1
+IGFILTER m/50
+IGTXLIMIT 6 10
+
+#############################################################
+# FIXED USER-STATION BEACON - Or Use GPS Below - Only One
+#############################################################
+
+# Visit http://aprs-tools.temporarilyoffline.com
+# Example values below are placeholders.
+# PBEACON delay=1:00 every=30:00 symbol=&quot;car&quot; lat=32^06.7N long=110^48.9W comment=&quot;TOADs user station&quot;
+
+#############################################################
+# GPS / TRACKER - Or Use PBEACON Above - Only One
+#############################################################
+
+# Visit http://aprs-tools.temporarilyoffline.com
+# GPSD
+# TBEACON sendto=0 delay=0:30 every=10:00 symbol=&quot;car&quot; comment=&quot;TOADs user station&quot; AMBIGUITY=1
+
+# Internet
+# TBEACON sendto=IG delay=0:45 every=10:00 symbol=&quot;car&quot; comment=&quot;TOADs user station&quot; AMBIGUITY=1
+
+# SMARTBEACONING 5 30 1 30 180 255
+</textarea>
+
+      <div class="note" id="statusNote">Tip: edit the callsign, passcode, audio device, and beacon lines before putting this on the air.</div>
+    </section>
+
+    <a class="back-link" href="index.html">← Back to APRS Tools</a>
+  </div>
+
+  <script>
+    const copyBtn = document.getElementById('copyBtn');
+    const confBox = document.getElementById('confBox');
+    const statusNote = document.getElementById('statusNote');
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        confBox.select();
+        confBox.setSelectionRange(0, confBox.value.length);
+        await navigator.clipboard.writeText(confBox.value);
+        statusNote.textContent = 'Copied to clipboard. Tiny config gremlin defeated.';
+      } catch (err) {
+        try {
+          document.execCommand('copy');
+          statusNote.textContent = 'Copied to clipboard.';
+        } catch (fallbackErr) {
+          statusNote.textContent = 'Copy failed. You can still manually select and copy the text.';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

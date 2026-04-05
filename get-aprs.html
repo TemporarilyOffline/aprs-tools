@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>APRS Overview | TO's APRS Tools</title>
+  <meta name="description" content="Readable APRS summary page for field use, emergency signaling, messaging, and coordination."/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+body { padding: 24px; }
+.wrap { max-width: 1320px; margin: 0 auto; }
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+.sub { margin:0; color:var(--muted); max-width: 86ch; }
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+.section {
+  margin-top: 18px;
+  overflow: hidden;
+}
+.section-head {
+  padding: 14px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.table-wrap {
+  overflow-x:auto;
+}
+table {
+  width:100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  text-align:left;
+}
+thead th {
+  background: rgba(255,255,255,.02);
+  color: var(--text);
+  font-size: 13px;
+}
+tbody tr:hover {
+  background: rgba(89,209,140,.05);
+}
+tbody tr:last-child td {
+  border-bottom:none;
+}
+.item {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.notes, .muted {
+  color: var(--muted);
+}
+.callout {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+}
+.callout strong {
+  color: var(--text);
+}
+.back-link {
+  display:inline-block;
+  margin-top:18px;
+  color:var(--accent);
+  text-decoration:none;
+}
+.back-link:hover {
+  text-decoration:underline;
+}
+@media (max-width: 560px) {
+  body { padding: 16px; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
+    </div>
+
+    <section class="hero">
+      <h1>APRS Overview</h1>
+      <p class="sub">Pretty-summary version of the APRS live stream notes, keeping the useful meat and trimming the conversational tumbleweeds. This page focuses on what APRS is good for in the real world, what habits matter in the field, and which features are worth caring about first.</p>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">Why APRS Actually Matters</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 250px;">Use Case</th>
+              <th>What It Gets You</th>
+              <th style="width: 360px;">Why It Matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="item">Group Tracking</td>
+              <td>Track family, friends, or a small team during camping, hunting, races, or cleanup work.</td>
+              <td class="notes">Everyone can appear on a shared map through aprs.fi online or mapping tools like YAAC offline.</td>
+            </tr>
+            <tr>
+              <td class="item">Asynchronous Messaging</td>
+              <td>Send short text messages even if the other operator is not actively sitting at the radio at that exact moment.</td>
+              <td class="notes">This is one of APRS's sneaky superpowers. It behaves more like slow RF email than live chat.</td>
+            </tr>
+            <tr>
+              <td class="item">Emergency Signaling</td>
+              <td>Trigger an APRS emergency status that alarms nearby APRS radios and marks your icon as urgent.</td>
+              <td class="notes">Especially useful when voice is crowded, missed, or unavailable.</td>
+            </tr>
+            <tr>
+              <td class="item">Event Coordination</td>
+              <td>Map checkpoints, hazards, operators, and moving assets during races, parades, and disaster work.</td>
+              <td class="notes">APRS turns the map into your live whiteboard.</td>
+            </tr>
+            <tr>
+              <td class="item">Remote / No-Cell Rescue</td>
+              <td>Pass distress or coordination messages where cellular service has evaporated into the desert air.</td>
+              <td class="notes">The notes include a real-world example where an APRS message helped get rescuers moving even without an ACK.</td>
+            </tr>
+            <tr>
+              <td class="item">Bulletins & Reference Data</td>
+              <td>Use APRS bulletin or BBS-style capabilities to push updates, hazards, or operating info.</td>
+              <td class="notes">Good for local instructions, staging notes, and shared situational awareness.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">Field Habits That Make APRS Work Better</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 260px;">Practice</th>
+              <th>What To Do</th>
+              <th style="width: 360px;">Why It Helps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="item">Standardize Status</td>
+              <td>Use icons, status text, and quick-message presets consistently.</td>
+              <td class="notes">Green = OK, yellow = needs help / low resources, red = emergency is a clean starting system.</td>
+            </tr>
+            <tr>
+              <td class="item">Beacon Intentionally</td>
+              <td>Beacon at sane intervals based on whether you are fixed or mobile.</td>
+              <td class="notes">Home might be every 30 minutes. Mobile or tactical use can justify much shorter intervals.</td>
+            </tr>
+            <tr>
+              <td class="item">Use Preset Messages</td>
+              <td>Keep short, standard quick-text options ready like En Route, At Location, Off Duty, or Emergency.</td>
+              <td class="notes">That reduces typing and removes ambiguity when things get spicy.</td>
+            </tr>
+            <tr>
+              <td class="item">Own Your Infrastructure</td>
+              <td>Do not assume someone else's digi or iGate will save the day.</td>
+              <td class="notes">For rural or group operations, bringing your own local APRS infrastructure is often the difference between “works” and “neat theory.”</td>
+            </tr>
+            <tr>
+              <td class="item">Use Offline Mapping Too</td>
+              <td>Pair APRS with tools like YAAC for local visibility even when internet access is absent.</td>
+              <td class="notes">This keeps the map alive when aprs.fi is out of reach.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <div class="section-head">APRS Features Worth Caring About First</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 260px;">Feature</th>
+              <th>What It Does</th>
+              <th style="width: 360px;">Practical Angle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="item">Beaconing</td>
+              <td>Sends your position and status automatically at intervals.</td>
+              <td class="notes">Core APRS behavior. Without beaconing, the rest of the ecosystem gets a lot less interesting.</td>
+            </tr>
+            <tr>
+              <td class="item">Short Messaging</td>
+              <td>Lets you pass brief RF text messages.</td>
+              <td class="notes">Perfect for low-bandwidth coordination and delayed delivery situations.</td>
+            </tr>
+            <tr>
+              <td class="item">Emergency Mode</td>
+              <td>Broadcasts an emergency indication that stands out on radios and maps.</td>
+              <td class="notes">Many Kenwood and Yaesu radios already know this trick.</td>
+            </tr>
+            <tr>
+              <td class="item">Icons & Status</td>
+              <td>Lets you communicate condition and role without composing full messages every time.</td>
+              <td class="notes">Fast visual cues beat typing when the clock is chewing on your ankles.</td>
+            </tr>
+            <tr>
+              <td class="item">Bulletins</td>
+              <td>Pushes one-to-many notices such as hazards, event instructions, or local ops notes.</td>
+              <td class="notes">Think group text, but with APRS flavor.</td>
+            </tr>
+            <tr>
+              <td class="item">Mapping Integration</td>
+              <td>Shows stations, objects, and movement in real time on APRS mapping software.</td>
+              <td class="notes">This is where APRS stops being abstract and becomes operational.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="callout">
+      <strong>Bottom line:</strong> APRS works best when you keep it standardized, keep it visible on a map, and treat it as an asynchronous coordination layer instead of a fake voice repeater. In the field, the winning recipe is simple: sensible beaconing, clear icons/status, short messages, and your own local digi/iGate when coverage actually matters.
+    </section>
+
+    <a class="back-link" href="index.html">← Back to APRS Tools</a>
+  </div>
+</body>
+</html>

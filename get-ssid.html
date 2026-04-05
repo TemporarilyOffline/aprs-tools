@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>APRS SSID Reference | TO's APRS Tools</title>
+  <meta name="description" content="Reference table for common APRS SSID identifiers."/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin:0; padding:0;
+  background:var(--bg); color:var(--text);
+  font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+body { padding:24px; }
+.wrap { max-width: 1320px; margin:0 auto; }
+
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+.sub { margin:0; color:var(--muted); max-width: 78ch; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+tbody tr:hover {
+  background: rgba(89,209,140,.05);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ssid {
+  white-space: nowrap;
+  font-weight: 700;
+  font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+.note {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 18px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  body { padding:16px; }
+  th, td { padding: 12px 12px; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
+    </div>
+
+    <section class="hero">
+      <h1>APRS SSID Reference</h1>
+      <p class="sub">Common APRS SSID identifiers and the typical roles they represent.</p>
+    </section>
+
+    <section class="panel">
+      <div class="table-wrap">
+        <table aria-label="Common APRS SSID identifiers">
+          <thead>
+            <tr>
+              <th style="width: 140px;">SSID</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="ssid">-0</td><td>Primary station (fixed and message capable)</td></tr>
+            <tr><td class="ssid">-1</td><td>Digipeater or home station running a relay</td></tr>
+            <tr><td class="ssid">-2</td><td>Second digipeater (on 70CM)</td></tr>
+            <tr><td class="ssid">-3</td><td>Third digipeater</td></tr>
+            <tr><td class="ssid">-4</td><td>HF to VHF gateway</td></tr>
+            <tr><td class="ssid">-5</td><td>IGate (not a home station)</td></tr>
+            <tr><td class="ssid">-6</td><td>Operations via satellite</td></tr>
+            <tr><td class="ssid">-7</td><td>Kenwood D7 handheld</td></tr>
+            <tr><td class="ssid">-8</td><td>Boats, sailboats, or secondary mobile units</td></tr>
+            <tr><td class="ssid">-9</td><td>Primary mobile station</td></tr>
+            <tr><td class="ssid">-10</td><td>Internet-only operation</td></tr>
+            <tr><td class="ssid">-11</td><td>APRS touch-tone users (balloons, etc.)</td></tr>
+            <tr><td class="ssid">-12</td><td>Portable units or one-way trackers</td></tr>
+            <tr><td class="ssid">-13</td><td>Reserved for future use</td></tr>
+            <tr><td class="ssid">-14</td><td>Reserved for future use</td></tr>
+            <tr><td class="ssid">-15</td><td>Generic additional station, digipeater, etc.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="note">These are conventional APRS SSID uses, not hard technical limits.</p>
+
+    <a class="back-link" href="index.html">← Back to APRS Tools</a>
+  </div>
+</body>
+</html>

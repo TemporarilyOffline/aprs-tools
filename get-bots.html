@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>APRS Bots | TO's APRS Tools</title>
+  <meta name="description" content="Readable APRS bot and query reference: tool, message format, and purpose."/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+body { padding: 24px; }
+.wrap { max-width: 1320px; margin: 0 auto; }
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+.sub { margin:0; color:var(--muted); max-width: 86ch; }
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+.section {
+  margin-top: 18px;
+  overflow: hidden;
+}
+.section-head {
+  padding: 14px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.table-wrap {
+  overflow-x:auto;
+}
+table {
+  width:100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  text-align:left;
+}
+thead th {
+  background: rgba(255,255,255,.02);
+  color: var(--text);
+  font-size: 13px;
+}
+tbody tr:hover {
+  background: rgba(89,209,140,.05);
+}
+tbody tr:last-child td {
+  border-bottom:none;
+}
+.bot {
+  font-weight: 700;
+  white-space: nowrap;
+}
+code {
+  background:#0d131d;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:2px 6px;
+  color:#d7e1ef;
+  font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;
+}
+.block {
+  display: inline-block;
+  white-space: pre-line;
+  line-height: 1.65;
+}
+.notes {
+  color: var(--muted);
+}
+.callout {
+  margin-top: 18px;
+  padding: 16px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+}
+.callout strong {
+  color: var(--text);
+}
+.back-link {
+  display:inline-block;
+  margin-top:18px;
+  color:var(--accent);
+  text-decoration:none;
+}
+.back-link:hover {
+  text-decoration:underline;
+}
+@media (max-width: 560px) {
+  body { padding: 16px; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img alt="Temporarily Offline" src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515">
+    </div>
+
+    <section class="hero">
+      <h1>APRS Bots & Queries</h1>
+      <p class="sub">Normalized against the attached <strong>APRS-Queries.pdf</strong> and folded into a more field-usable format. This now covers not just named bots, but also the wider APRS <strong>query family</strong>, including station introspection commands, group servers, QRU object lookups, AVRS voice-relay helpers, and legacy UI-View-only oddities.</p>
+    </section>
+
+    
+    <section class="panel section">
+      <div class="section-head">Starter Set</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">WXBOT</td>
+          <td><code class="block">TODAY
+TONIGHT
+TOMORROW
+12345
+EDDL</code></td>
+          <td>Weather by your last known position, ZIP code, or airport ICAO.</td>
+          <td class="notes">The PDF explicitly shows ICAO/METAR-style airport weather via WXBOT on page 9.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">FIND</td>
+          <td><code class="block">CALLSIGN-SSID</code></td>
+          <td>Find when a station or object was last heard.</td>
+          <td class="notes">Good first move before trying to message someone.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">WHO-IS / WHOIS</td>
+          <td><code class="block">CALLSIGN
+F CALLSIGN</code></td>
+          <td>Callsign lookup. Basic query returns class/name/country. Full query returns more detail.</td>
+          <td class="notes">The PDF shows both the short WHO-IS lookup and the full `F CALLSIGN` form on page 8.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">REPEAT</td>
+          <td><code class="block">N1
+N2</code></td>
+          <td>Nearby repeater lookup.</td>
+          <td class="notes">This comes from your earlier reference sheet, not the SA7SKY PDF, but it still belongs here.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">ANSRVR</td>
+          <td><code class="block">J GROUP
+CQ GROUP your message
+U GROUP
+L</code></td>
+          <td>Join a group, send to a group, leave a group, or list your groups.</td>
+          <td class="notes">Still one of the highest-utility APRS tools for nets, events, and check-ins.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Messaging &amp; Gateways</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">WLNK-1</td>
+          <td><code class="block">H
+I
+?L
+L
+R2
+Y3
+K1
+F4 user@example.com
+SP address subject
+...message text...
+/EX
+P
+SMS CALLSIGN message
+A ALIAS=user@example.com
+AL
+G1</code></td>
+          <td>Winlink over APRS. Help, list mail, read/reply/delete/forward, compose long mail, send one-line mail, manage aliases, and find RMS gateways.</td>
+          <td class="notes">Pages 7 and 8 of the PDF add a lot more depth than the old table had.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">SMSGTE</td>
+          <td><code class="block">@16135551234 your message</code></td>
+          <td>Send SMS messages through APRS.</td>
+          <td class="notes">The PDF notes SMSGTE is USA/Canada only on page 10.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">WTSAPP</td>
+          <td><code class="block">@+14155552671 your message
+#SET me +14155552671
+#RM me
+follow up message</code></td>
+          <td>WhatsApp gateway. Send messages, create/remove aliases, and continue a conversation for about an hour after destination is set.</td>
+          <td class="notes">Pages 10 and 11 add alias setup and follow-up conversation mode.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">EMAIL-2</td>
+          <td><code class="block">me user@example.com
+me r
+me l
+me your message</code></td>
+          <td>Email gateway using per-SSID shortcut aliases.</td>
+          <td class="notes">The PDF says old `EMAIL` is decommissioned and to use `EMAIL-2` instead on page 11.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Info, Position &amp; Diagnostics</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">WHERE / WHERE-IS</td>
+          <td><code class="block">CALLSIGN
+where CALLSIGN
+dir CALLSIGN
+dis CALLSIGN @km
+loc CALLSIGN
+last CALLSIGN
+alert CALLSIGN &lt; 15 km
+alert CALLSIGN &gt; 15 km
+cancel CALLSIGN
+help</code></td>
+          <td>Distance, bearing, position, last report time, proximity alerts, and help for station lookups.</td>
+          <td class="notes">Pages 9 and 10 show this is a surprisingly chunky Swiss-army knife.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">APRSPH</td>
+          <td><code class="block">CALLSIGN</code></td>
+          <td>APRS path analysis.</td>
+          <td class="notes">Useful when you want to see how packets are getting from point A to point B.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">ECHO</td>
+          <td><code class="block">testing</code></td>
+          <td>Loopback message test.</td>
+          <td class="notes">Simple smoke test for message flow.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">ISS</td>
+          <td><code class="block">NEXT
+?</code></td>
+          <td>ISS pass or ISS-related info depending on the service.</td>
+          <td class="notes">Your earlier reference sheet uses `NEXT`; the image sheet also shows `ISS ?`. Implementation varies.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">SATBOT</td>
+          <td><code class="block">ISS</code></td>
+          <td>Next satellite passes.</td>
+          <td class="notes">From the K4KHO reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">APRSFI</td>
+          <td><code class="block">CALLSIGN</code></td>
+          <td>Map or track query.</td>
+          <td class="notes">From the K4KHO reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">AVRS</td>
+          <td><code class="block">?
+?CALLSIGN-SSID
+CALLSIGN-SSID</code></td>
+          <td>Find nearest Echolink/IRLP/AllStar node to you or another station, or request a voice-call assist message.</td>
+          <td class="notes">Page 6 of the PDF. Neat little APRS-to-voice bridge gremlin.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">QRZ</td>
+          <td><code class="block">OBJECTNAME
+OBJECT*</code></td>
+          <td>Short query of an object not older than about 2 hours, with wildcard support.</td>
+          <td class="notes">Page 9 covers QRZ object lookup, which was missing.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Station / Software Query Family</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">?APRS?</td>
+          <td><code class="block">?APRS?</code></td>
+          <td>Ask a station/system what APRS queries it supports.</td>
+          <td class="notes">Page 1. Basically the &#x27;what tricks do you know?&#x27; button.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?ABOUT / ?APRSV / ?VER</td>
+          <td><code class="block">?ABOUT
+?APRSV
+?VER</code></td>
+          <td>Station software version, operating system, and CPU/load style info.</td>
+          <td class="notes">Pages 1 and 2 show these as equivalent or overlapping.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSD</td>
+          <td><code class="block">?APRSD</code></td>
+          <td>Stations heard direct, without digipeater hops.</td>
+          <td class="notes">Page 1.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSH</td>
+          <td><code class="block">?APRSH
+?APRSH CALLSIGN-SSID</code></td>
+          <td>Heard stations including packet path stats, or whether a specific station was heard.</td>
+          <td class="notes">Page 1.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSL</td>
+          <td><code class="block">?APRSL</code></td>
+          <td>Stations heard locally in the past 30 minutes, up to 2 hops.</td>
+          <td class="notes">Page 1.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSM</td>
+          <td><code class="block">?APRSM</code></td>
+          <td>Query whether the station has messages queued for you.</td>
+          <td class="notes">Page 1. Depends on station/software support.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSO</td>
+          <td><code class="block">?APRSO</code></td>
+          <td>Request active objects created by the station.</td>
+          <td class="notes">Page 1.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSP</td>
+          <td><code class="block">?APRSP</code></td>
+          <td>Position query.</td>
+          <td class="notes">Page 1.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRSS</td>
+          <td><code class="block">?APRSS</code></td>
+          <td>Status query, often showing APRSIS32 port status and counts.</td>
+          <td class="notes">Page 2.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?APRST / ?PING?</td>
+          <td><code class="block">?APRST
+?PING?</code></td>
+          <td>Track of station packets to APRS-IS or via radio.</td>
+          <td class="notes">Page 2 treats these as equivalents.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?CPU</td>
+          <td><code class="block">?CPU</code></td>
+          <td>Software/OS/CPU-load style query.</td>
+          <td class="notes">Page 2.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?DX</td>
+          <td><code class="block">?DX</code></td>
+          <td>Farthest received station in the last hour.</td>
+          <td class="notes">Page 2.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">?IGATE</td>
+          <td><code class="block">?IGATE</code></td>
+          <td>IGate activity and port info.</td>
+          <td class="notes">Page 2.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Groups, Objects &amp; Nearby Resources</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">ANSRVR</td>
+          <td><code class="block">?
+? GROUP
+D GROUP
+L
+J GROUP
+U GROUP
+CQ GROUP message</code></td>
+          <td>List groups, inspect a group, list your groups, join/leave, or send a group message.</td>
+          <td class="notes">Pages 3 and 4 add the discovery and description commands that were missing before.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">CQSRVR</td>
+          <td><code class="block">INFO</code></td>
+          <td>List short-lived activity groups.</td>
+          <td class="notes">Page 4. Similar spirit to ANSRVR but more temporary.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">QRU</td>
+          <td><code class="block">INFO
+INFO 250
+RP70
+AIRP 150
+OBJECTGROUP</code></td>
+          <td>Find nearby object categories or pull nearby objects from a category such as repeaters, airports, fuel, hospitals, and more.</td>
+          <td class="notes">Pages 4, 5, and 6 make QRU much richer than the original summary.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">QRU object groups</td>
+          <td><code class="block">AERO
+AIRP
+AMBU
+CLUB
+CIVD
+ECHO
+FIRE
+FOOD
+FUEL
+HELI
+HOSP
+INFO
+LIFEBOAT
+POLI
+POST
+RAIL
+RD2M
+RD70
+RP10
+RP23
+RP2M
+RP6M
+RP70
+SHOP
+SRAIL
+STOR
+T2SRV
+VETE</code></td>
+          <td>Named QRU categories you can request nearby.</td>
+          <td class="notes">Pages 5 and 6 list the available object groups. This is the part that turns QRU into a tiny infrastructure vending machine.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">SOTA / POTA / Events</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">SOTA</td>
+          <td><code class="block">CALLSIGN summit freq mode</code></td>
+          <td>SOTA spotting.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">SPOT</td>
+          <td><code class="block">freq mode</code></td>
+          <td>General-purpose spotting.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">POTAGATE</td>
+          <td><code class="block">CALLSIGN park freq mode</code></td>
+          <td>POTA spotting.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Additional Utilities</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">WXSRV</td>
+          <td><code class="block">30303</code></td>
+          <td>Regional weather summary.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">NTSGTE</td>
+          <td><code class="block">NTS message</code></td>
+          <td>Radiogram to ARRL NTS.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">APRSTT</td>
+          <td><code class="block">DTMF tones</code></td>
+          <td>Touch-tone APRS gateway.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">DAPNET</td>
+          <td><code class="block">CALLSIGN message</code></td>
+          <td>APRS to pager gateway.</td>
+          <td class="notes">Regional availability applies.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">SATSRV</td>
+          <td><code class="block">NOAA</code></td>
+          <td>Satellite telemetry lookup.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">DPRS</td>
+          <td><code class="block">message</code></td>
+          <td>D-STAR to APRS bridge.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">TEST</td>
+          <td><code class="block">Hello world</code></td>
+          <td>Generic gateway ping/test.</td>
+          <td class="notes">From your existing reference image.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">MPAD</td>
+          <td><code class="block">various commands</code></td>
+          <td>Large multi-purpose APRS data bot.</td>
+          <td class="notes">The PDF explicitly punts to MPAD docs on page 10. Better as its own page later.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+    <section class="panel section">
+      <div class="section-head">Legacy / UI-View Only</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Tool / Query</th>
+              <th style="width: 300px;">Message Format</th>
+              <th>Purpose</th>
+              <th style="width: 340px;">Notes / Sanity Checks</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+        <tr>
+          <td class="bot">!PROGRAMNAME.EXE</td>
+          <td><code class="block">!Orbitron.exe</code></td>
+          <td>Remote-command style UI-View action to execute a program in the RCOMMAND folder.</td>
+          <td class="notes">Page 1. Interesting, mildly cursed, definitely legacy.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">BCN</td>
+          <td><code class="block">BCN</code></td>
+          <td>Request position/comment as packet beacon.</td>
+          <td class="notes">Page 3. UI-View only.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">LGS / LG1</td>
+          <td><code class="block">LGS
+LG1</code></td>
+          <td>Start logging received stations.</td>
+          <td class="notes">Page 3. UI-View only.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">LGX / LG0</td>
+          <td><code class="block">LGX
+LG0</code></td>
+          <td>Stop logging received stations.</td>
+          <td class="notes">Page 3. UI-View only.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">QAS</td>
+          <td><code class="block">QAS</code></td>
+          <td>All heard stations.</td>
+          <td class="notes">Page 3. UI-View only.</td>
+        </tr>
+        
+
+        <tr>
+          <td class="bot">QWS</td>
+          <td><code class="block">QWS</code></td>
+          <td>Heard weather stations.</td>
+          <td class="notes">Page 3. UI-View only.</td>
+        </tr>
+        
+          </tbody>
+        </table>
+      </div>
+    </section>
+    
+
+    <section class="callout">
+      <strong>What changed:</strong> I expanded the page beyond named bots and merged in the missing tools and query commands from the PDF, including the whole <strong>?APRS</strong> family, richer <strong>ANSRVR</strong> and <strong>WLNK-1</strong> commands, <strong>QRU</strong> object categories, <strong>AVRS</strong>, <strong>QRZ</strong> object lookup, expanded <strong>WHERE/WHERE-IS</strong> commands, WhatsApp alias/follow-up mode, and the old <strong>UI-View-only</strong> commands.
+      <p>This version aims for “readable/actionable first,” not exhaustive packet-historian maximalism.</p>
+    </section>
+
+    <a class="back-link" href="index.html">← Back to APRS Tools</a>
+  </div>
+</body>
+</html>
