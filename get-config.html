@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <title>Dire Wolf Config | TO's APRS Tools</title>
-  <meta name="description" content="Copy-ready Dire Wolf configuration for an APRS user station."/>
+  <meta name="description" content="Copy-ready Dire Wolf configuration for APRS stations, with selectable presets as the state of the art evolves."/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
@@ -64,23 +64,44 @@ h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
   margin-bottom:12px;
 }
 
+.toolbar-left {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+}
+
 .label {
   font-size:13px;
   color:var(--muted);
 }
 
+select,
 button {
   appearance:none;
   border:none;
+  border-radius:12px;
+  padding:12px 16px;
+  font:inherit;
+}
+
+select {
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--line);
+  min-width:220px;
+  cursor:pointer;
+}
+
+button {
   cursor:pointer;
   background:var(--accent);
   color:#08110c;
   font-weight:700;
-  border-radius:12px;
-  padding:12px 16px;
 }
 
-button:hover {
+button:hover,
+select:hover {
   filter: brightness(1.05);
 }
 
@@ -103,65 +124,52 @@ textarea {
   font-size: 13px;
 }
 
-.back-link {
-  display: inline-block;
-  margin-top: 18px;
-  color: var(--accent);
-  text-decoration: none;
-}
-.back-link:hover {
-  text-decoration: underline;
-}
-
 @media (max-width: 560px) {
   body { padding:16px; }
   textarea { min-height: 560px; }
+  .toolbar { align-items:stretch; }
+  .toolbar-left,
+  .toolbar { flex-direction:column; }
+  select,
+  button { width:100%; }
 }
   </style>
 </head>
 <body>
   <div class="wrap">
-<div class="logo" style="display:flex; align-items:center; justify-content:center; gap:20px;">
-  
-  <!-- Left Image -->
-  <a href="https://temporarilyoffline.com">
-    <img 
-      src="https://temporarilyoffline.com/cdn/shop/files/TOADs_DI_Front.png?v=1754430761&height=96" 
-      alt="Get Your Radio Connected!" 
-      style="height:96px;">
-  </a>
+    <div class="logo" style="display:flex; align-items:center; justify-content:center; gap:20px;">
+      <a href="https://temporarilyoffline.com">
+        <img src="https://temporarilyoffline.com/cdn/shop/files/TOADs_DI_Front.png?v=1754430761&height=96" alt="Get Your Radio Connected!" style="height:96px;">
+      </a>
 
-  <!-- Center Logo -->
-  <img 
-    src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515" 
-    alt="Temporarily Offline" 
-    style="height:96px;">
+      <img src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515" alt="Temporarily Offline" style="height:96px;">
 
-  <!-- Right Image -->
-  <a href="https://temporarilyoffline.com">
-    <img 
-      src="https://temporarilyoffline.com/cdn/shop/files/AIOCTransparentModel.png?v=1766529563&height=96" 
-      alt="Get Your Radio Connected!" 
-      style="height:96px;">
-  </a>
+      <a href="https://temporarilyoffline.com">
+        <img src="https://temporarilyoffline.com/cdn/shop/files/AIOCTransparentModel.png?v=1766529563&height=96" alt="Get Your Radio Connected!" style="height:96px;">
+      </a>
+    </div>
 
-</div>
     <section class="hero">
       <h1>Dire Wolf Config</h1>
-      <p class="sub">Copy-ready <code>direwolf.conf</code> sample for a fixed APRS user station with AGW, KISS, logging, and iGate settings.</p>
+      <p class="sub">Copy-ready <code>direwolf.conf</code> presets for APRS stations. Pick a profile from the dropdown, then copy and customize it before putting it on the air.</p>
     </section>
 
     <section class="panel">
       <div class="toolbar">
-        <div class="label">Clipboard-friendly config block</div>
+        <div class="toolbar-left">
+          <div class="label">Select station profile</div>
+          <select id="configSelect" aria-label="Select Dire Wolf configuration profile">
+            <option value="fill-in-digi" selected>Fill In Digi</option>
+          </select>
+        </div>
         <button id="copyBtn" type="button">Copy to Clipboard</button>
       </div>
 
       <textarea id="confBox" spellcheck="false">#############################################################
-# Dire Wolf - APRS User Station (Fixed Position / PBEACON)
+# Dire Wolf - APRS Fill-In Digipeater + IGate
 #############################################################
 
-MYCALL TOADS-1
+MYCALL T0ADS-1
 ADEVICE plughw:CARD=Device,DEV=0
 PTT CM108
 MODEM 1200
@@ -170,63 +178,95 @@ KISSPORT 8001
 LOGDIR /var/log/direwolf
 
 #############################################################
-# IGATE - expand the frequency
+# DIGIPEATER - fill-in digi only
+# Respond only to WIDE1-1 requests.
 #############################################################
 
-# Visit http://aprs-tools.temporarilyoffline.com
+DIGIPEAT 0 0 ^WIDE1-1$ ^WIDE1-1$
+
+#############################################################
+# IGATE - RF <-> APRS-IS
+#############################################################
+
 IGSERVER noam.aprs2.net
-IGLOGIN TOADS-1 13801
+# Visit http://aprs-tools.temporarilyoffline.com for passcode
+IGLOGIN T0ADS-1 13718
+
+# One hop max from Internet back to RF.
+# Good sane default for a bidirectional IGate.
 IGTXVIA 0 WIDE1-1
+
+# Reasonable local-area server-side filter.
 IGFILTER m/50
-IGTXLIMIT 6 10
+
+# Keep RF gating under control.
+IGTXLIMIT 10 5
 
 #############################################################
-# FIXED USER-STATION BEACON - Or Use GPS Below - Only One
+# FIXED STATION BEACON - use this OR GPS below, not both
 #############################################################
 
-# Visit http://aprs-tools.temporarilyoffline.com
-# Example values below are placeholders.
-# PBEACON delay=1:00 every=30:00 symbol=&quot;car&quot; lat=32^06.7N long=110^48.9W comment=&quot;TOADs user station&quot;
+# Replace lat/long/comment with your real values.
+# "digi" is a sensible symbol for infrastructure here.
+
+# Visit http://aprs-tools.temporarilyoffline.com for passcode
+PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment="T0ADs fill-in digi + IGate"
 
 #############################################################
-# GPS / TRACKER - Or Use PBEACON Above - Only One
+# GPS / TRACKER - use this OR PBEACON above, not both
 #############################################################
 
-# Visit http://aprs-tools.temporarilyoffline.com
-# GPSD
-# TBEACON sendto=0 delay=0:30 every=10:00 symbol=&quot;car&quot; comment=&quot;TOADs user station&quot; AMBIGUITY=1
+# GPSD example
+# TBEACON sendto=0 delay=0:30 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
 
-# Internet
-# TBEACON sendto=IG delay=0:45 every=10:00 symbol=&quot;car&quot; comment=&quot;TOADs user station&quot; AMBIGUITY=1
+# Internet-only position example
+# TBEACON sendto=IG delay=0:45 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
 
-# SMARTBEACONING 5 30 1 30 180 255
-</textarea>
+# SMARTBEACONING 5 30 1 30 180 255</textarea>
 
-      <div class="note" id="statusNote">Tip: edit the callsign, passcode, audio device, and beacon lines before putting this on the air.</div>
+      <div class="note" id="statusNote">Loaded profile: Fill In Digi.</div>
     </section>
-
   </div>
 
   <script>
+    const CONFIGS = {
+      "fill-in-digi": "#############################################################\n# Dire Wolf - APRS Fill-In Digipeater + IGate\n#############################################################\n\nMYCALL T0ADS-1\nADEVICE plughw:CARD=Device,DEV=0\nPTT CM108\nMODEM 1200\nAGWPORT 8000\nKISSPORT 8001\nLOGDIR /var/log/direwolf\n\n#############################################################\n# DIGIPEATER - fill-in digi only\n# Respond only to WIDE1-1 requests.\n#############################################################\n\nDIGIPEAT 0 0 ^WIDE1-1$ ^WIDE1-1$\n\n#############################################################\n# IGATE - RF <-> APRS-IS\n#############################################################\n\nIGSERVER noam.aprs2.net\n# Visit http://aprs-tools.temporarilyoffline.com for passcode\nIGLOGIN T0ADS-1 13718\n\n# One hop max from Internet back to RF.\n# Good sane default for a bidirectional IGate.\nIGTXVIA 0 WIDE1-1\n\n# Reasonable local-area server-side filter.\nIGFILTER m/50\n\n# Keep RF gating under control.\nIGTXLIMIT 10 5\n\n#############################################################\n# FIXED STATION BEACON - use this OR GPS below, not both\n#############################################################\n\n# Replace lat/long/comment with your real values.\n# \"digi\" is a sensible symbol for infrastructure here.\n\n# Visit http://aprs-tools.temporarilyoffline.com for passcode\nPBEACON delay=1:00 every=10:00 symbol=\"digi\" lat=32^06.7N long=110^48.9W comment=\"T0ADs fill-in digi + IGate\"\n\n#############################################################\n# GPS / TRACKER - use this OR PBEACON above, not both\n#############################################################\n\n# GPSD example\n# TBEACON sendto=0 delay=0:30 every=10:00 symbol=\"digi\" comment=\"T0ADs fill-in digi + IGate\" AMBIGUITY=1\n\n# Internet-only position example\n# TBEACON sendto=IG delay=0:45 every=10:00 symbol=\"digi\" comment=\"T0ADs fill-in digi + IGate\" AMBIGUITY=1\n\n# SMARTBEACONING 5 30 1 30 180 255"
+    };
+
+    const configSelect = document.getElementById('configSelect');
     const copyBtn = document.getElementById('copyBtn');
     const confBox = document.getElementById('confBox');
     const statusNote = document.getElementById('statusNote');
+
+    function loadConfig() {
+      const selected = configSelect.value;
+      confBox.value = CONFIGS[selected] || '';
+      const selectedText = configSelect.options[configSelect.selectedIndex]?.text || 'Config';
+      statusNote.textContent = `Loaded profile: ${selectedText}.`;
+    }
+
+    configSelect.addEventListener('change', loadConfig);
 
     copyBtn.addEventListener('click', async () => {
       try {
         confBox.select();
         confBox.setSelectionRange(0, confBox.value.length);
         await navigator.clipboard.writeText(confBox.value);
-        statusNote.textContent = 'Copied to clipboard. Tiny config gremlin defeated.';
+        const selectedText = configSelect.options[configSelect.selectedIndex]?.text || 'config';
+        statusNote.textContent = `Copied ${selectedText} to clipboard.`;
       } catch (err) {
         try {
+          confBox.select();
           document.execCommand('copy');
-          statusNote.textContent = 'Copied to clipboard.';
+          const selectedText = configSelect.options[configSelect.selectedIndex]?.text || 'config';
+          statusNote.textContent = `Copied ${selectedText} to clipboard.`;
         } catch (fallbackErr) {
           statusNote.textContent = 'Copy failed. You can still manually select and copy the text.';
         }
       }
     });
+
+    loadConfig();
   </script>
 </body>
 </html>
