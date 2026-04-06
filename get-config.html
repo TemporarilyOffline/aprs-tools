@@ -211,13 +211,14 @@ IGTXLIMIT 10 5
 # "digi" is a sensible symbol for infrastructure here.
 
 # Visit http://aprs-tools.temporarilyoffline.com for passcode
-PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment="T0ADs fill-in digi + IGate"
+# PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment="T0ADs fill-in digi + IGate"
 
 #############################################################
 # GPS / TRACKER - use this OR PBEACON above, not both
 #############################################################
 
 # GPSD example
+# GPS
 # TBEACON sendto=0 delay=0:30 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
 
 # Internet-only position example
@@ -283,6 +284,7 @@ PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment
 #############################################################
 
 # GPSD example
+# GPSD
 # TBEACON sendto=0 delay=0:30 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
 
 # Internet-only position example
