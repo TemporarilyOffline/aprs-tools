@@ -151,7 +151,7 @@ textarea {
 
     <section class="hero">
       <h1>Dire Wolf Config</h1>
-      <p class="sub">Copy-ready <code>direwolf.conf</code> presets for APRS stations. Pick a profile from the dropdown, then copy and customize it before putting it on the air.</p>
+      <p class="sub">Copy-ready APRS configuration snippets and helper files. Pick a profile from the dropdown, then copy and customize it before putting it on the air.</p>
     </section>
 
     <section class="panel">
@@ -160,6 +160,7 @@ textarea {
           <div class="label">Select station profile</div>
           <select id="configSelect" aria-label="Select Dire Wolf configuration profile">
             <option value="fill-in-digi" selected>Fill In Digi</option>
+            <option value="systemd">systemd config</option>
           </select>
         </div>
         <button id="copyBtn" type="button">Copy to Clipboard</button>
@@ -230,7 +231,81 @@ PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment
 
   <script>
     const CONFIGS = {
-      "fill-in-digi": "#############################################################\n# Dire Wolf - APRS Fill-In Digipeater + IGate\n#############################################################\n\nMYCALL T0ADS-1\nADEVICE plughw:CARD=Device,DEV=0\nPTT CM108\nMODEM 1200\nAGWPORT 8000\nKISSPORT 8001\nLOGDIR /var/log/direwolf\n\n#############################################################\n# DIGIPEATER - fill-in digi only\n# Respond only to WIDE1-1 requests.\n#############################################################\n\nDIGIPEAT 0 0 ^WIDE1-1$ ^WIDE1-1$\n\n#############################################################\n# IGATE - RF <-> APRS-IS\n#############################################################\n\nIGSERVER noam.aprs2.net\n# Visit http://aprs-tools.temporarilyoffline.com for passcode\nIGLOGIN T0ADS-1 13718\n\n# One hop max from Internet back to RF.\n# Good sane default for a bidirectional IGate.\nIGTXVIA 0 WIDE1-1\n\n# Reasonable local-area server-side filter.\nIGFILTER m/50\n\n# Keep RF gating under control.\nIGTXLIMIT 10 5\n\n#############################################################\n# FIXED STATION BEACON - use this OR GPS below, not both\n#############################################################\n\n# Replace lat/long/comment with your real values.\n# \"digi\" is a sensible symbol for infrastructure here.\n\n# Visit http://aprs-tools.temporarilyoffline.com for passcode\nPBEACON delay=1:00 every=10:00 symbol=\"digi\" lat=32^06.7N long=110^48.9W comment=\"T0ADs fill-in digi + IGate\"\n\n#############################################################\n# GPS / TRACKER - use this OR PBEACON above, not both\n#############################################################\n\n# GPSD example\n# TBEACON sendto=0 delay=0:30 every=10:00 symbol=\"digi\" comment=\"T0ADs fill-in digi + IGate\" AMBIGUITY=1\n\n# Internet-only position example\n# TBEACON sendto=IG delay=0:45 every=10:00 symbol=\"digi\" comment=\"T0ADs fill-in digi + IGate\" AMBIGUITY=1\n\n# SMARTBEACONING 5 30 1 30 180 255"
+      "fill-in-digi": `#############################################################
+# Dire Wolf - APRS Fill-In Digipeater + IGate
+#############################################################
+
+MYCALL T0ADS-1
+ADEVICE plughw:CARD=Device,DEV=0
+PTT CM108
+MODEM 1200
+AGWPORT 8000
+KISSPORT 8001
+LOGDIR /var/log/direwolf
+
+#############################################################
+# DIGIPEATER - fill-in digi only
+# Respond only to WIDE1-1 requests.
+#############################################################
+
+DIGIPEAT 0 0 ^WIDE1-1$ ^WIDE1-1$
+
+#############################################################
+# IGATE - RF <-> APRS-IS
+#############################################################
+
+IGSERVER noam.aprs2.net
+# Visit http://aprs-tools.temporarilyoffline.com for passcode
+IGLOGIN T0ADS-1 13718
+
+# One hop max from Internet back to RF.
+# Good sane default for a bidirectional IGate.
+IGTXVIA 0 WIDE1-1
+
+# Reasonable local-area server-side filter.
+IGFILTER m/50
+
+# Keep RF gating under control.
+IGTXLIMIT 10 5
+
+#############################################################
+# FIXED STATION BEACON - use this OR GPS below, not both
+#############################################################
+
+# Replace lat/long/comment with your real values.
+# "digi" is a sensible symbol for infrastructure here.
+
+# Visit http://aprs-tools.temporarilyoffline.com for passcode
+PBEACON delay=1:00 every=10:00 symbol="digi" lat=32^06.7N long=110^48.9W comment="T0ADs fill-in digi + IGate"
+
+#############################################################
+# GPS / TRACKER - use this OR PBEACON above, not both
+#############################################################
+
+# GPSD example
+# TBEACON sendto=0 delay=0:30 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
+
+# Internet-only position example
+# TBEACON sendto=IG delay=0:45 every=10:00 symbol="digi" comment="T0ADs fill-in digi + IGate" AMBIGUITY=1
+
+# SMARTBEACONING 5 30 1 30 180 255`,
+
+      "systemd": `[Unit]
+Description=Direwolf APRS TNC
+After=network.target sound.target gpsd.service
+
+[Service]
+ExecStart=/usr/bin/direwolf -c /etc/direwolf.conf -t 0
+Restart=always
+User=direwolf
+Group=direwolf
+
+# Optional but nice:
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target`
     };
 
     const configSelect = document.getElementById('configSelect');
