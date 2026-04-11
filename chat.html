@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TO's APRS Tools - APRS Group Chat</title>
+  <meta name="description" content="Public overview of the KM9G APRS Group Chat service, commands, limits, dashboard behavior, and club deployment options."/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+:root {
+  --bg: #0b0f14;
+  --panel: #121821;
+  --panel2: #192331;
+  --line: #263244;
+  --text: #e8eef7;
+  --muted: #a7b3c2;
+  --accent: #59d18c;
+  --icon-size: 48px;
+  --radius: 16px;
+  --shadow: 0 10px 24px rgba(0,0,0,.22);
+}
+* { box-sizing: border-box; }
+html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; }
+body { padding: 24px; }
+.wrap { max-width: 1320px; margin: 0 auto; }
+.hero {
+  background: linear-gradient(180deg, rgba(89,209,140,.08), rgba(89,209,140,0) 40%), var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+h1 { margin:0 0 8px; font-size: clamp(28px,4vw,42px); line-height:1.05; }
+h2 { margin: 0 0 10px; font-size: 22px; }
+h3 { margin: 18px 0 8px; font-size: 16px; }
+.sub { margin:0; color:var(--muted); max-width: 74ch; }
+.section {
+  margin-top:20px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  padding:20px;
+  box-shadow: var(--shadow);
+}
+.section p { margin: 0 0 12px; }
+.section p:last-child { margin-bottom: 0; }
+.grid {
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:14px;
+}
+.card {
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+}
+.card h3 { margin-top:0; }
+code, pre {
+  background:#0d131d; border:1px solid var(--line); border-radius:8px;
+  color:#d7e1ef; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+code { padding:2px 6px; font-size:12px; }
+pre {
+  padding:12px 14px;
+  overflow:auto;
+  white-space:pre-wrap;
+  margin: 10px 0 0;
+  font-size:13px;
+}
+ul {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+}
+li { margin: 6px 0; color: var(--muted); }
+strong { color: var(--text); }
+.footer { margin-top:22px; color:var(--muted); font-size:12px; }
+a { color: var(--accent); }
+.note {
+  background:#0f1520;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px 16px;
+  color:var(--muted);
+}
+.logo {
+  display:flex;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.logo img {
+  max-width:100%;
+  height:auto;
+}
+@media (max-width: 560px) {
+  body { padding: 16px; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo" style="display:flex; align-items:center; justify-content:center; gap:20px;">
+
+      <a href="https://temporarilyoffline.com">
+        <img
+          src="https://temporarilyoffline.com/cdn/shop/files/TOADs_DI_Front.png?v=1754430761&height=96"
+          alt="Get Your Radio Connected!"
+          style="height:96px;">
+      </a>
+
+      <img
+        src="https://temporarilyoffline.com/cdn/shop/files/TOLogo3kBlack.png?height=96&v=1757190515"
+        alt="Temporarily Offline"
+        style="height:96px;">
+
+      <a href="https://temporarilyoffline.com">
+        <img
+          src="https://temporarilyoffline.com/cdn/shop/files/AIOCTransparentModel.png?v=1766529563&height=96"
+          alt="Get Your Radio Connected!"
+          style="height:96px;">
+      </a>
+    </div>
+
+    <section class="hero">
+      <h1>APRS Group Chat</h1>
+      <p class="sub">A standards-based APRS messaging service built for real radios, APRS-IS clients, and club stations that want organized topic rooms without pretending packet radio is Discord.</p>
+    </section>
+
+    <section class="section">
+      <h2>Overview</h2>
+      <p>The KM9G APRS Group Chat is a room-based messaging service that rides on normal APRS messaging. The primary transport is APRS-IS, with RF participation supported where local infrastructure allows it.</p>
+      <p>It is intentionally simple: join a room, send a message, and receive replies from other subscribed users. No special app is required beyond an APRS client that supports normal message traffic.</p>
+      <div class="note">
+        This service is standards-first and best-effort. If your local setup cannot get APRS-IS replies back to RF, that is usually an infrastructure issue, not a bot issue.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Core Principles</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Standards First</h3>
+          <p>Uses normal APRS messaging behavior instead of inventing a parallel protocol.</p>
+        </div>
+        <div class="card">
+          <h3>APRS-IS Primary</h3>
+          <p>Internet-connected APRS clients get the most consistent experience. RF remains part of the picture where it makes sense.</p>
+        </div>
+        <div class="card">
+          <h3>Curated Rooms</h3>
+          <p>Rooms are created by the server owner only. Users can join and leave them, but not create them.</p>
+        </div>
+        <div class="card">
+          <h3>Best-Effort Delivery</h3>
+          <p>APRS is not guaranteed delivery. Delays, missed messages, and one-way behavior can happen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Getting Started</h2>
+      <p>Send APRS messages to:</p>
+      <pre>KM9G-1</pre>
+      <p>Start by asking for the room list or subscribing to a room you want to use.</p>
+    </section>
+
+    <section class="section">
+      <h2>Commands</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>List Rooms</h3>
+          <pre>ROOMS</pre>
+          <p>Returns the available public rooms on the server.</p>
+        </div>
+        <div class="card">
+          <h3>Join a Room</h3>
+          <pre>SUB &lt;ROOM&gt;</pre>
+          <p>Subscribes your station to a room.</p>
+        </div>
+        <div class="card">
+          <h3>Leave a Room</h3>
+          <pre>UNSUB &lt;ROOM&gt;</pre>
+          <p>Removes your station from a room.</p>
+        </div>
+        <div class="card">
+          <h3>Help</h3>
+          <pre>HELP</pre>
+          <p>Returns a short usage summary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Sending Messages</h2>
+      <p>Once you are subscribed, send a normal APRS message to the chat node. Your message is forwarded to other subscribers in that room.</p>
+      <pre>SUB GENERAL
+Hello everyone</pre>
+      <p>Rooms are intentionally curated and topic-based. Example room names may include <code>GENERAL</code>, <code>TECH</code>, <code>LOCAL</code>, and <code>EVENTS</code>.</p>
+    </section>
+
+    <section class="section">
+      <h2>Room Policy</h2>
+      <p>Rooms are created and managed by the server owner. Public users cannot create rooms.</p>
+      <ul>
+        <li>Known rooms can be joined with <code>SUB &lt;ROOM&gt;</code>.</li>
+        <li>Unknown room names are rejected.</li>
+        <li>This keeps the system readable, intentional, and efficient over APRS.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Message Limits</h2>
+      <p>Messages must be <strong>67 characters or less</strong>.</p>
+      <p>Messages that exceed the limit are rejected and not forwarded. The sender receives a reply like:</p>
+      <pre>Msg too long (83 chars). Max 67. Try again.</pre>
+      <p>This keeps behavior predictable across a wide range of APRS gear and clients.</p>
+    </section>
+
+    <section class="section">
+      <h2>Delivery Expectations</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Internet-Connected Clients</h3>
+          <p>These generally have the most reliable experience because they talk directly to APRS-IS.</p>
+        </div>
+        <div class="card">
+          <h3>RF Users Behind Bidirectional iGates</h3>
+          <p>These users can usually participate normally when local infrastructure is healthy.</p>
+        </div>
+        <div class="card">
+          <h3>RF Users Behind RX-Only iGates</h3>
+          <p>These users may be able to send messages in but not receive replies back. That is a network limitation.</p>
+        </div>
+      </div>
+      <p>If you want better APRS coverage and better message return paths, the answer is simple: build better infrastructure.</p>
+    </section>
+
+    <section class="section">
+      <h2>Public Dashboard</h2>
+      <p>A public dashboard shows system status, room activity, and recent message snapshots. It is intentionally published as a static site rather than a live public-facing server.</p>
+      <ul>
+        <li>Updated periodically, not in real time</li>
+        <li>Built for low overhead and safe operation from a mobile RV-based station</li>
+        <li>Can remain stale while the station is offline or moving</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Status and Offline Behavior</h2>
+      <p>The dashboard shows a last-updated time and uses a browser-side failsafe. If no fresh update is seen for more than 10 minutes, it automatically switches to an offline state.</p>
+      <pre>Group chat is Temporarily Offline... get it?</pre>
+      <p>This makes the public page honest even when the station has lost connectivity or is deliberately shut down.</p>
+    </section>
+
+    <section class="section">
+      <h2>For Clubs</h2>
+      <p>Clubs can run their own deployment using the same software stack. On-air use remains free. The value is in the software, packaging, dashboard, and support around it.</p>
+      <ul>
+        <li>Curated room sets for club use</li>
+        <li>Club-owned nodes and dashboards</li>
+        <li>Optional local RF optimization</li>
+        <li>Future expansion for additional services</li>
+        <li>Software is available to patreon supporters or youtube channel members (any teir) upon request
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Philosophy</h2>
+      <p>This project leans into what APRS already is: open, distributed, infrastructure-driven, and occasionally gloriously imperfect.</p>
+      <p>It does not try to paper over every network weakness with hacks. It uses the protocol correctly, tells the truth about delivery, and encourages better infrastructure where it matters.</p>
+    </section>
+
+    <div class="footer">
+      Built for APRS users who would rather improve the network than complain about it.
+    </div>
+  </div>
+</body>
+</html>
